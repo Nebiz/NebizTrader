@@ -24,11 +24,11 @@ CheckClosedPoe() {
 ProcessClipboardAndOpenURL() {
     queryBaseUrl := "https://www.pathofexile.com/trade2/search/poe2/Standard?q="
     exchangeBaseUrl := "https://www.pathofexile.com/trade2/exchange/poe2/Standard?q="
-    rareItemQueryPayload    := '{"query":{"type":"--itemType--","stats":[{"type":"and","filters":[]}]}}'
-    uniqueItemQueryPayload  := '{"query":{"name":"--itemName--","type":"--itemType--","stats":[{"type":"and","filters":[]}]}}'
-    exchangePayload         := '{"query":{"have":["exalted"],"want":["--itemName--"]},"engine":"new"}'
-    uncutGemPayload         := '{"query":{"type":"--itemType--","filters":{"type_filters":{"disabled":false,"filters":{"ilvl":{"min":--itemLevelMin--,"max":--itemLevelMax--}}}}}}'
-    leveledGemPayload       := '{"query":{"type":"--itemType--","filters":{"misc_filters":{"disabled":false,"filters":{"gem_level":{"min":--itemLevelMin--,"max":--itemLevelMax--}}}}}}'
+    rareItemQueryPayload    := '{"query":{"status":{"option":"online"},"type":"--itemType--","stats":[{"type":"and","filters":[]}]}}'
+    uniqueItemQueryPayload  := '{"query":{"status":{"option":"online"},"name":"--itemName--","type":"--itemType--","stats":[{"type":"and","filters":[]}]}}'
+    exchangePayload         := '{"query":{"status":{"option":"online"},"have":["exalted"],"want":["--itemName--"]},"engine":"new"}'
+    uncutGemPayload         := '{"query":{"status":{"option":"online"},"type":"--itemType--","filters":{"type_filters":{"disabled":false,"filters":{"ilvl":{"min":--itemLevelMin--,"max":--itemLevelMax--}}}}}}'
+    leveledGemPayload       := '{"query":{"status":{"option":"online"},"type":"--itemType--","filters":{"misc_filters":{"disabled":false,"filters":{"gem_level":{"min":--itemLevelMin--,"max":--itemLevelMax--}}}}}}'
 
     ; Split the text by newline
     itemLines := StrSplit(A_Clipboard, "`n", "`r")
@@ -38,7 +38,7 @@ ProcessClipboardAndOpenURL() {
         return
     }
 
-    ; Getting object data
+    ; Getting item data
     delimiter := ": "
     itemClass := ""
     itemRarity := ""
@@ -70,7 +70,7 @@ ProcessClipboardAndOpenURL() {
     } else if (itemRarity = "Unique") {
         payload := StrReplace(uniqueItemQueryPayload, "--itemName--", itemLines[3])
         payload := StrReplace(payload, "--itemType--", itemLines[4])
-    } else if (itemRarity = "Currency" && itemClass = "Stackable Currency") {
+    } else if (itemRarity = "Currency" && (itemClass = "Stackable Currency" || itemClass = "Socketable")) {
         payload := StrReplace(exchangePayload, "--itemName--", MyMap[itemLines[3]])
     } else if (itemClass = "Inscribed Ultimatum" || itemClass = "Djinn Barya" || itemClass = "Trial Coins") {
         payload := StrReplace(uncutGemPayload, "--itemType--", itemLines[3])
@@ -94,7 +94,8 @@ ProcessClipboardAndOpenURL() {
         }
         payload := StrReplace(payload, "--itemLevelMin--", StrSplit(itemLines[12], delimiter)[2])
         payload := StrReplace(payload, "--itemLevelMax--", 100)
-    } else if (itemClass = "Tablet") { ; todo: hard to implement
+    } else if (itemClass = "Tablet") {
+        ; todo: hard to implement
     } else if (itemRarity = "Gem" && itemClass = "") { ; Cast on Gems.
         payload := StrReplace(leveledGemPayload, "--itemType--", itemLines[2])
         payload := StrReplace(payload, "--itemLevelMin--", SubStr(itemLevel, 1, 2))
