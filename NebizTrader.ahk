@@ -71,8 +71,8 @@ ProcessClipboardAndOpenURL() {
         payload := StrReplace(uniqueItemQueryPayload, "--itemName--", itemLines[3])
         payload := StrReplace(payload, "--itemType--", itemLines[4])
     } else if (itemRarity = "Currency" && (itemClass = "Stackable Currency" || itemClass = "Socketable")) {
-        if (itemLines[3] = "Greater Jeweller's Orb" || itemLines[3] = "Perfect Jeweller's Orb") { ; Handle exception, Item is not on bulk exchange.
-            itemClass := "Hotfix" ; force to not to use bulk weblink.
+        if (InStr(itemLines[3], "Jeweller's Orb")) { ; Handle exception, Item is not on bulk exchange.
+            itemClass := "Hotfix" ; Force to not use bulk weblink for "url_1".
             payload := StrReplace(rareItemQueryPayload, "--itemType--", itemLines[3])
         } else {
             payload := StrReplace(exchangePayload, "--itemName--", MyMap[itemLines[3]])
